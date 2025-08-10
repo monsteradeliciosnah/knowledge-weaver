@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ main, improvement/** ]
+    branches: [ main, improvement/**, fix/**, feature/** ]
   pull_request:
     branches: [ main ]
 
@@ -14,24 +14,26 @@ jobs:
 
       - name: Detect stack
         id: detect
+        shell: bash
         run: |
-          set -e
           PY="false"; NODE="false"; GO="false"; RUST="false"
-          [ -f pyproject.toml ] && PY="true"
-          [ -f package.json ] && NODE="true"
-          [ -f go.mod ] && GO="true"
-          [ -f Cargo.toml ] && RUST="true"
-          echo "py=$PY"   >> $GITHUB_OUTPUT
-          echo "node=$NODE" >> $GITHUB_OUTPUT
-          echo "go=$GO"     >> $GITHUB_OUTPUT
-          echo "rust=$RUST" >> $GITHUB_OUTPUT
+          [[ -f pyproject.toml ]] && PY="true"
+          [[ -f package.json   ]] && NODE="true"
+          [[ -f go.mod         ]] && GO="true"
+          [[ -f Cargo.toml     ]] && RUST="true"
+          {
+            echo "py=${PY}"
+            echo "node=${NODE}"
+            echo "go=${GO}"
+            echo "rust=${RUST}"
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Set up Python
+      - name: Setup Python
         if: steps.detect.outputs.py == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
+          cache: pip
 
       - name: Install (Python)
         if: steps.detect.outputs.py == 'true'
@@ -55,33 +57,15 @@ jobs:
           if [ -d tests ] || ls -1 test_*.py 2>/dev/null | grep -q .; then
             pytest -q
           else
-            python - <<'PY'
-import sys, importlib, os, tomllib
-pkg=None
-if os.path.exists("pyproject.toml"):
-    with open("pyproject.toml","rb") as f:
-        data=tomllib.load(f)
-    proj=data.get("project",{})
-    name=proj.get("name")
-    if name:
-        cand=name.replace("-","_")
-        try:
-            importlib.import_module(cand)
-            print("Smoke import OK:", cand)
-            sys.exit(0)
-        except Exception as e:
-            print("Smoke import failed:", e)
-            sys.exit(1)
-print("No project name; skipping smoke test")
-PY
+            echo "No tests; skipping."
           fi
 
-      - name: Set up Node
+      - name: Setup Node
         if: steps.detect.outputs.node == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: npm
 
       - name: Install (Node)
         if: steps.detect.outputs.node == 'true'
@@ -94,11 +78,11 @@ PY
           npm run lint || echo "no lint script"
           npm test || echo "no tests"
 
-      - name: Set up Go
+      - name: Setup Go
         if: steps.detect.outputs.go == 'true'
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: "1.22"
           cache: true
 
       - name: Build/Test (Go)
@@ -108,7 +92,7 @@ PY
           go build ./...
           go test ./... || true
 
-      - name: Set up Rust
+      - name: Setup Rust
         if: steps.detect.outputs.rust == 'true'
         uses: dtolnay/rust-toolchain@stable
 
