@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68","wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knowledge-weaver"
+version = "0.1.0"
+description = "Multi-modal RAG: text+image+table ingestion, FAISS search, answers with citations"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name="Lord Nibbler"}]
+dependencies = [
+  "fastapi>=0.112.0",
+  "uvicorn[standard]>=0.30.0",
+  "typer>=0.12.3",
+  "pydantic>=2.8.0",
+  "rich>=13.7.0",
+  "pandas>=2.2.2",
+  "numpy>=1.26.4",
+  "faiss-cpu>=1.8.0",
+  "sentence-transformers>=2.6.1",
+  "Pillow>=10.3.0",
+  "pdfminer.six>=20231228",
+  "markdown-it-py>=3.0.0",
+  "python-dotenv>=1.0.1",
+  "jinja2>=3.1.4",
+  "plotly>=5.22.0",
+  "matplotlib>=3.8.4",
+]
+
+[project.scripts]
+knowledgeweaver = "knowledge_weaver.cli:app"
+
+[tool.setuptools.packages.find]
+include=["knowledge_weaver*"]
