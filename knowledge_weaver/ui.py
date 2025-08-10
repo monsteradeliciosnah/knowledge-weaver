@@ -1,7 +1,7 @@
-import streamlit as st
-from knowledge_weaver.indexer import MultiModalIndexer
 import pandas as pd
-from pathlib import Path
+import streamlit as st
+
+from knowledge_weaver.indexer import MultiModalIndexer
 
 st.set_page_config(page_title="Knowledge Weaver", layout="wide")
 st.title("Multi‑Modal Knowledge Weaver")
