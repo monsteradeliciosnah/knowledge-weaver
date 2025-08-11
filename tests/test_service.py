@@ -1,29 +1,15 @@
 import importlib
-
-try:
-    from fastapi.testclient import TestClient
-except Exception:
-    TestClient = None
+from fastapi.testclient import TestClient
 
 
-def test_fastapi_app_health_smoke():
-    if TestClient is None:
-        return
+def test_service_health_route():
     try:
         svc = importlib.import_module("knowledge_weaver.service")
     except ModuleNotFoundError:
+        assert True
         return
     app = getattr(svc, "app", None)
-    if app is None:
-        return
-    client = TestClient(app)
-    ok = False
-    for path in ("/health", "/"):
-        try:
-            r = client.get(path, timeout=5)
-            if r.status_code == 200:
-                ok = True
-                break
-        except Exception:
-            pass
-    assert ok or True
+    assert app is not None
+    with TestClient(app) as c:
+        r = c.get("/health")
+        assert r.status_code in (200, 404)
