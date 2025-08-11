@@ -5,14 +5,12 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
-from markdown_it import MarkdownIt
 from pdfminer.high_level import extract_text
 from PIL import Image
 
 
 def read_text(path: Path) -> str:
     if path.suffix.lower() in [".md", ".markdown"]:
-        md = MarkdownIt()
         return path.read_text(encoding="utf-8")
     elif path.suffix.lower() in [".txt"]:
         return path.read_text(encoding="utf-8")
