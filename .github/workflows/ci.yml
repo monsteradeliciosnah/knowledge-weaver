@@ -21,12 +21,10 @@ jobs:
           [[ -f package.json   ]] && NODE="true"
           [[ -f go.mod         ]] && GO="true"
           [[ -f Cargo.toml     ]] && RUST="true"
-          {
-            echo "py=${PY}"
-            echo "node=${NODE}"
-            echo "go=${GO}"
-            echo "rust=${RUST}"
-          } >> "$GITHUB_OUTPUT"
+          echo "py=${PY}"    >> "$GITHUB_OUTPUT"
+          echo "node=${NODE}" >> "$GITHUB_OUTPUT"
+          echo "go=${GO}"     >> "$GITHUB_OUTPUT"
+          echo "rust=${RUST}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Python
         if: steps.detect.outputs.py == 'true'
