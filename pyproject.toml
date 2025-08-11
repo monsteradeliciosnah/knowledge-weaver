@@ -33,3 +33,6 @@ knowledgeweaver = "knowledge_weaver.cli:app"
 
 [tool.setuptools.packages.find]
 include=["knowledge_weaver*"]
+
+[project.optional-dependencies]
+test = ["coverage","fastapi","httpx","pytest"]

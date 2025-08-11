@@ -9,39 +9,30 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Detect stack
-        id: detect
+      - id: detect
         shell: bash
         run: |
-          PY="false"; NODE="false"; GO="false"; RUST="false"
-          [[ -f pyproject.toml ]] && PY="true"
-          [[ -f package.json   ]] && NODE="true"
-          [[ -f go.mod         ]] && GO="true"
-          [[ -f Cargo.toml     ]] && RUST="true"
-          echo "py=${PY}"    >> "$GITHUB_OUTPUT"
-          echo "node=${NODE}" >> "$GITHUB_OUTPUT"
-          echo "go=${GO}"     >> "$GITHUB_OUTPUT"
-          echo "rust=${RUST}" >> "$GITHUB_OUTPUT"
+          PY="false"; [[ -f pyproject.toml ]] && PY="true"
+          echo "py=${PY}" >> "$GITHUB_OUTPUT"
 
-      - name: Setup Python
-        if: steps.detect.outputs.py == 'true'
+      - if: steps.detect.outputs.py == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
 
-      - name: Install (Python)
-        if: steps.detect.outputs.py == 'true'
+      - if: steps.detect.outputs.py == 'true'
+        name: Install
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[all]' || pip install -e .
-          pip install pytest flake8 ruff black isort || true
+          pip install -e '.[test]' || true
+          pip install pytest coverage httpx fastapi ruff black isort flake8 || true
 
-      - name: Lint (Python)
-        if: steps.detect.outputs.py == 'true'
+      - if: steps.detect.outputs.py == 'true'
+        name: Lint
         run: |
           ruff check . --output-format=github || true
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
@@ -49,53 +40,16 @@ jobs:
           black --check . || true
           isort --check-only . || true
 
-      - name: Tests (Python)
-        if: steps.detect.outputs.py == 'true'
+      - if: steps.detect.outputs.py == 'true'
+        name: Tests with coverage
         run: |
-          if [ -d tests ] || ls -1 test_*.py 2>/dev/null | grep -q .; then
-            pytest -q
-          else
-            echo "No tests; skipping."
-          fi
+          coverage run -m pytest -q
+          coverage xml -o coverage.xml
+          coverage report -m || true
 
-      - name: Setup Node
-        if: steps.detect.outputs.node == 'true'
-        uses: actions/setup-node@v4
+      - if: steps.detect.outputs.py == 'true'
+        name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
         with:
-          node-version: "20"
-          cache: npm
-
-      - name: Install (Node)
-        if: steps.detect.outputs.node == 'true'
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm i; fi
-
-      - name: Lint/Test (Node)
-        if: steps.detect.outputs.node == 'true'
-        run: |
-          npm run lint || echo "no lint script"
-          npm test || echo "no tests"
-
-      - name: Setup Go
-        if: steps.detect.outputs.go == 'true'
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.22"
-          cache: true
-
-      - name: Build/Test (Go)
-        if: steps.detect.outputs.go == 'true'
-        run: |
-          go mod tidy
-          go build ./...
-          go test ./... || true
-
-      - name: Setup Rust
-        if: steps.detect.outputs.rust == 'true'
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Build/Test (Rust)
-        if: steps.detect.outputs.rust == 'true'
-        run: |
-          cargo build --release
-          cargo test || true
+          name: coverage
+          path: coverage.xml
