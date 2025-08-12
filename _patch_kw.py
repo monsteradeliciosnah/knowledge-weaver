@@ -1,5 +1,5 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 # Fix E741 in indexer.py (rename D/I -> distances/indices)
 p = Path("knowledge_weaver/indexer.py")
