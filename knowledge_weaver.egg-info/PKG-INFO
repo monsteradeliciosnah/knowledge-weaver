@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: knowledge-weaver
+Version: 0.1.0
+Summary: Multi-modal RAG: text+image+table ingestion, FAISS search, answers with citations
+Author: Lord Nibbler
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.112.0
+Requires-Dist: uvicorn[standard]>=0.30.0
+Requires-Dist: typer>=0.12.3
+Requires-Dist: pydantic>=2.8.0
+Requires-Dist: rich>=13.7.0
+Requires-Dist: pandas>=2.2.2
+Requires-Dist: numpy>=1.26.4
+Requires-Dist: faiss-cpu>=1.8.0
+Requires-Dist: sentence-transformers>=2.6.1
+Requires-Dist: Pillow>=10.3.0
+Requires-Dist: pdfminer.six>=20231228
+Requires-Dist: markdown-it-py>=3.0.0
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: jinja2>=3.1.4
+Requires-Dist: plotly>=5.22.0
+Requires-Dist: matplotlib>=3.8.4
+
+# Multi‑Modal Knowledge Weaver
+
+Author: Lord Nibbler
+
+Ingest text (PDF/Markdown), images, and CSVs; embed them; search with FAISS; answer queries with hybrid retrieval and cite sources. CLI + FastAPI + Streamlit.

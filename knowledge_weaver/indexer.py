@@ -80,8 +80,8 @@ class MultiModalIndexer:
             q = self.text_model.encode(
                 query, convert_to_numpy=True, normalize_embeddings=True
             ).astype("float32")
-            D, I = idx.search(q.reshape(1, -1), k)
-            for d, i in zip(D[0], I[0]):
+            distances, indices = idx.search(q.reshape(1, -1), k)
+            for d, i in zip(distances[0], indices[0]):
                 if i == -1:
                     continue
                 out.append({"score": float(d), **meta[i]})
@@ -92,8 +92,8 @@ class MultiModalIndexer:
             q = self.image_model.encode(
                 query, convert_to_numpy=True, normalize_embeddings=True
             ).astype("float32")
-            D, I = idx.search(q.reshape(1, -1), k)
-            for d, i in zip(D[0], I[0]):
+            distances, indices = idx.search(q.reshape(1, -1), k)
+            for d, i in zip(distances[0], indices[0]):
                 if i == -1:
                     continue
                 out.append({"score": float(d), **meta[i]})
